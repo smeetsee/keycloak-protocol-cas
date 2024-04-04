@@ -14,7 +14,7 @@ import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.*;
 import org.keycloak.protocol.LoginProtocol;
 import org.keycloak.protocol.cas.utils.LogoutHelper;
-import org.keycloak.protocol.cas.utils.UsernameMapperHelper;
+import org.keycloak.protocol.cas.utils.UserMapperHelper;
 import org.keycloak.protocol.oidc.utils.OAuth2Code;
 import org.keycloak.protocol.oidc.utils.OAuth2CodeParser;
 import org.keycloak.services.ErrorPage;
@@ -97,7 +97,7 @@ public class CASLoginProtocol implements LoginProtocol {
         AuthenticatedClientSessionModel clientSession = clientSessionCtx.getClientSession();
 
         // Verify that if a username mapper is set - there is a username being returned
-        if(UsernameMapperHelper.getMappedUsername(session, clientSession) == null) {
+        if(UserMapperHelper.getMappedUser(session, clientSession) == null) {
             return ErrorPage.error(session, authSession, Response.Status.INTERNAL_SERVER_ERROR, "Unable to map username for CAS client");
         }
 
