@@ -10,7 +10,7 @@ import org.keycloak.protocol.cas.representations.CASServiceResponse;
 import org.keycloak.protocol.cas.utils.CASValidationException;
 import org.keycloak.protocol.cas.utils.ContentTypeHelper;
 import org.keycloak.protocol.cas.utils.ServiceResponseHelper;
-import org.keycloak.protocol.cas.utils.UsernameMapperHelper;
+import org.keycloak.protocol.cas.utils.UserMapperHelper;
 
 import java.util.Map;
 
@@ -23,7 +23,7 @@ public class ServiceValidateEndpoint extends ValidateEndpoint {
     protected Response successResponse() {
         UserSessionModel userSession = clientSession.getUserSession();
         Map<String, Object> attributes = getUserAttributes();
-        CASServiceResponse serviceResponse = ServiceResponseHelper.createSuccess(UsernameMapperHelper.getMappedUsername(session,clientSession), attributes);
+        CASServiceResponse serviceResponse = ServiceResponseHelper.createSuccess(UserMapperHelper.getMappedUser(session,clientSession), attributes);
         return prepare(Response.Status.OK, serviceResponse);
     }
 

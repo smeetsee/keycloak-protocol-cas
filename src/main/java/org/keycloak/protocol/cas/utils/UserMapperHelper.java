@@ -8,8 +8,8 @@ import org.keycloak.services.util.DefaultClientSessionContext;
 
 import java.util.Map;
 
-public class UsernameMapperHelper {
-    public static String getMappedUsername(KeycloakSession session, AuthenticatedClientSessionModel clientSession) {
+public class UserMapperHelper {
+    public static String getMappedUser(KeycloakSession session, AuthenticatedClientSessionModel clientSession) {
         // CAS protocol does not support scopes, so pass null scopeParam
         ClientSessionContext clientSessionCtx = DefaultClientSessionContext.fromClientSessionAndScopeParameter(clientSession, null, session);
         UserSessionModel userSession = clientSession.getUserSession();
@@ -20,13 +20,13 @@ public class UsernameMapperHelper {
                 .findFirst()
                 .orElse(null);
 
-        String mappedUsername = userSession.getUser().getUsername();
+        String mappedUser = userSession.getUser().getUsername();
 
         if(mapperPair != null) {
             ProtocolMapperModel mapping = mapperPair.getKey();
-            CASUserMapper casUsernameMapper = (CASUserMapper) mapperPair.getValue();
-            mappedUsername = casUsernameMapper.getMappedUsername(mapping, session, userSession, clientSession);
+            CASUserMapper casUserMapper = (CASUserMapper) mapperPair.getValue();
+            mappedUser = casUserMapper.getMappedUsername(mapping, session, userSession, clientSession);
         }
-        return mappedUsername;
+        return mappedUser;
     }
 }

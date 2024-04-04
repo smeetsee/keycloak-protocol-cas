@@ -15,7 +15,7 @@ import org.keycloak.protocol.cas.CASLoginProtocol;
 import org.keycloak.protocol.cas.representations.CASErrorCode;
 import org.keycloak.protocol.cas.representations.SamlResponseHelper;
 import org.keycloak.protocol.cas.utils.CASValidationException;
-import org.keycloak.protocol.cas.utils.UsernameMapperHelper;
+import org.keycloak.protocol.cas.utils.UserMapperHelper;
 import org.keycloak.services.Urls;
 import org.xml.sax.InputSource;
 
@@ -62,7 +62,7 @@ public class SamlValidateEndpoint extends AbstractValidateEndpoint {
 
             Map<String, Object> attributes = getUserAttributes();
 
-            SAML11ResponseType response = SamlResponseHelper.successResponse(issuer, UsernameMapperHelper.getMappedUsername(session,clientSession), attributes);
+            SAML11ResponseType response = SamlResponseHelper.successResponse(issuer, UserMapperHelper.getMappedUser(session,clientSession), attributes);
 
             return Response.ok(SamlResponseHelper.soap(response)).build();
 
