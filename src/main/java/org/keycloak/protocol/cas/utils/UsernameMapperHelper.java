@@ -3,7 +3,7 @@ package org.keycloak.protocol.cas.utils;
 import org.keycloak.models.*;
 import org.keycloak.protocol.ProtocolMapper;
 import org.keycloak.protocol.ProtocolMapperUtils;
-import org.keycloak.protocol.cas.mappers.CASUsernameMapper;
+import org.keycloak.protocol.cas.mappers.CASUserMapper;
 import org.keycloak.services.util.DefaultClientSessionContext;
 
 import java.util.Map;
@@ -16,7 +16,7 @@ public class UsernameMapperHelper {
 
 
         Map.Entry<ProtocolMapperModel, ProtocolMapper> mapperPair = ProtocolMapperUtils.getSortedProtocolMappers(session,clientSessionCtx)
-                .filter(e -> e.getValue() instanceof CASUsernameMapper)
+                .filter(e -> e.getValue() instanceof CASUserMapper)
                 .findFirst()
                 .orElse(null);
 
@@ -24,7 +24,7 @@ public class UsernameMapperHelper {
 
         if(mapperPair != null) {
             ProtocolMapperModel mapping = mapperPair.getKey();
-            CASUsernameMapper casUsernameMapper = (CASUsernameMapper) mapperPair.getValue();
+            CASUserMapper casUsernameMapper = (CASUserMapper) mapperPair.getValue();
             mappedUsername = casUsernameMapper.getMappedUsername(mapping, session, userSession, clientSession);
         }
         return mappedUsername;
