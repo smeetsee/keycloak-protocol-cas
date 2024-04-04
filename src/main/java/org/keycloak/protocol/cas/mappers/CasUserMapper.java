@@ -10,7 +10,7 @@ import org.keycloak.provider.ProviderConfigProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserAttributeCasUsernameMapper extends AbstractCASProtocolMapper implements CASUsernameMapper {
+public class CASUserMapper implements ProtocolMapper {
     public static final String PROVIDER_ID = "cas-usermodel-username-mapper";
     public static final String USERNAME_MAPPER_CATEGORY = "CAS Username Mapper";
     private static final String CONF_FALLBACK_TO_USERNAME_IF_NULL = "username_fallback";
@@ -34,6 +34,28 @@ public class UserAttributeCasUsernameMapper extends AbstractCASProtocolMapper im
         configProperties.add(property);
 
 
+    }
+
+    @Override
+    public String getProtocol() {
+        return CASLoginProtocol.LOGIN_PROTOCOL;
+    }
+
+    @Override
+    public void close() {
+    }
+
+    @Override
+    public final ProtocolMapper create(KeycloakSession session) {
+        throw new RuntimeException("UNSUPPORTED METHOD");
+    }
+    
+    @Override
+    public void init(Config.Scope config) {
+    }
+
+    @Override
+    public void postInit(KeycloakSessionFactory factory) {
     }
 
     @Override
@@ -61,7 +83,6 @@ public class UserAttributeCasUsernameMapper extends AbstractCASProtocolMapper im
         return configProperties;
     }
 
-    @Override
     public String getMappedUsername(ProtocolMapperModel mappingModel, KeycloakSession session,
                                     UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
 
