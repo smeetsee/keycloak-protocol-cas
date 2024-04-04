@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CASUserMapper implements ProtocolMapper {
-    public static final String PROVIDER_ID = "cas-usermodel-username-mapper";
-    public static final String USERNAME_MAPPER_CATEGORY = "CAS Username Mapper";
-    private static final String CONF_FALLBACK_TO_USERNAME_IF_NULL = "username_fallback";
+    public static final String PROVIDER_ID = "cas-usermodel-user-mapper";
+    public static final String USERNAME_MAPPER_CATEGORY = "CAS User Mapper";
+    private static final String CONF_FALLBACK_TO_USERNAME_IF_NULL = "user_fallback";
 
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
     static {
@@ -70,12 +70,12 @@ public class CASUserMapper implements ProtocolMapper {
 
     @Override
     public String getDisplayType() {
-        return "User Attribute Mapper For CAS Username";
+        return "User Attribute Mapper For CAS User";
     }
 
     @Override
     public String getHelpText() {
-        return "Maps a user attribute to CAS Username value.";
+        return "Maps a user attribute to CAS User value.";
     }
 
     @Override
