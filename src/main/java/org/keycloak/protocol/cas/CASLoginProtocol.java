@@ -15,6 +15,9 @@ import org.keycloak.protocol.ClientData;
 import org.keycloak.protocol.LoginProtocol;
 import org.keycloak.protocol.cas.endpoints.AbstractValidateEndpoint;
 import org.keycloak.protocol.cas.utils.LogoutHelper;
+import org.keycloak.protocol.cas.utils.UsernameMapperHelper;
+import org.keycloak.protocol.oidc.utils.OAuth2Code;
+import org.keycloak.protocol.oidc.utils.OAuth2CodeParser;
 import org.keycloak.services.ErrorPage;
 import org.keycloak.services.managers.ResourceAdminManager;
 import org.keycloak.sessions.AuthenticationSessionModel;
@@ -98,6 +101,11 @@ public class CASLoginProtocol implements LoginProtocol {
     @Override
     public Response authenticated(AuthenticationSessionModel authSession, UserSessionModel userSession, ClientSessionContext clientSessionCtx) {
         AuthenticatedClientSessionModel clientSession = clientSessionCtx.getClientSession();
+
+        // Verify that if a username mapper is set - there is a username being returned
+        if(UsernameMapperHelper.getMappedUsername(session, clientSession) == null) {
+            return ErrorPage.error(session, authSession, Response.Status.INTERNAL_SERVER_ERROR, "Unable to map username for CAS client");
+        }
 
         String service = authSession.getRedirectUri();
         //TODO validate service
