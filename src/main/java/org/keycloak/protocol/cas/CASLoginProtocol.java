@@ -6,13 +6,14 @@ import jakarta.ws.rs.core.UriInfo;
 import org.apache.http.HttpEntity;
 import org.jboss.logging.Logger;
 import org.keycloak.common.util.KeycloakUriBuilder;
-import org.keycloak.common.util.Time;
 import org.keycloak.events.Details;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.*;
+import org.keycloak.protocol.ClientData;
 import org.keycloak.protocol.LoginProtocol;
+import org.keycloak.protocol.cas.endpoints.AbstractValidateEndpoint;
 import org.keycloak.protocol.cas.utils.LogoutHelper;
 import org.keycloak.protocol.cas.utils.UserMapperHelper;
 import org.keycloak.protocol.oidc.utils.OAuth2Code;
@@ -23,7 +24,6 @@ import org.keycloak.sessions.AuthenticationSessionModel;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.UUID;
 
 public class CASLoginProtocol implements LoginProtocol {
     private static final Logger logger = Logger.getLogger(CASLoginProtocol.class);
@@ -36,11 +36,17 @@ public class CASLoginProtocol implements LoginProtocol {
     public static final String GATEWAY_PARAM = "gateway";
     public static final String TICKET_PARAM = "ticket";
     public static final String FORMAT_PARAM = "format";
+    public static final String PGTURL_PARAM = "pgtUrl";
+    public static final String TARGET_SERVICE_PARAM = "targetService";
+    public static final String PGT_PARAM = "pgt";
 
     public static final String TICKET_RESPONSE_PARAM = "ticket";
     public static final String SAMLART_RESPONSE_PARAM = "SAMLart";
 
     public static final String SERVICE_TICKET_PREFIX = "ST-";
+    public static final String PROXY_GRANTING_TICKET_IOU_PREFIX = "PGTIOU-";
+    public static final String PROXY_GRANTING_TICKET_PREFIX = "PGT-";
+    public static final String PROXY_TICKET_PREFIX = "PT-";
     public static final String SESSION_SERVICE_TICKET = "service_ticket";
 
     public static final String LOGOUT_REDIRECT_URI = "CAS_LOGOUT_REDIRECT_URI";
@@ -104,15 +110,9 @@ public class CASLoginProtocol implements LoginProtocol {
         String service = authSession.getRedirectUri();
         //TODO validate service
 
-        OAuth2Code codeData = new OAuth2Code(UUID.randomUUID().toString(),
-                Time.currentTime() + userSession.getRealm().getAccessCodeLifespan(),
-                null, null, authSession.getRedirectUri(), null, null,
-                userSession.getId());
-        String code = OAuth2CodeParser.persistCode(session, clientSession, codeData);
-
         KeycloakUriBuilder uriBuilder = KeycloakUriBuilder.fromUri(service);
 
-        String loginTicket = SERVICE_TICKET_PREFIX + code;
+        String loginTicket = AbstractValidateEndpoint.getST(session, clientSession, service);
 
         if (authSession.getClientNotes().containsKey(CASLoginProtocol.TARGET_PARAM)) {
             // This was a SAML 1.1 auth request so return the ticket ID as "SAMLart" instead of "ticket"
@@ -138,6 +138,16 @@ public class CASLoginProtocol implements LoginProtocol {
     }
 
     @Override
+    public ClientData getClientData(AuthenticationSessionModel authSession) {
+        return new ClientData(authSession.getRedirectUri(), null, null, null);
+    }
+
+    @Override
+    public Response sendError(ClientModel clientModel, ClientData clientData, Error error) {
+        return null;
+    }
+
+    @Override
     public Response backchannelLogout(UserSessionModel userSession, AuthenticatedClientSessionModel clientSession) {
         String logoutUrl = clientSession.getRedirectUri();
         String serviceTicket = clientSession.getNote(CASLoginProtocol.SESSION_SERVICE_TICKET);
@@ -146,8 +156,7 @@ public class CASLoginProtocol implements LoginProtocol {
             sendSingleLogoutRequest(logoutUrl, serviceTicket);
         }
         ClientModel client = clientSession.getClient();
-        new ResourceAdminManager(session).logoutClientSession(realm, client, clientSession).close();
-        return Response.ok().build();
+        return new ResourceAdminManager(session).logoutClientSession(realm, client, clientSession);
     }
 
     private void sendSingleLogoutRequest(String logoutUrl, String serviceTicket) {
